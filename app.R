@@ -1,11 +1,11 @@
 # Load necessary libraries
-library(shiny)
-library(shinydashboard)
-library(tidyverse)
-library(plotly)  # Added for plotly bar plot
-library(wordcloud2)  # For word clouds
-library(DT)  # For interactive tables
-library(rsconnect)
+require(shiny)
+require(shinydashboard)
+require(tidyverse)
+require(plotly)  # Added for plotly bar plot
+require(wordcloud2)  # For word clouds
+require(DT)  # For interactive tables
+require(rsconnect)
 
 # Header
 header <- dashboardHeader(title = "SpaceVisualizer")
