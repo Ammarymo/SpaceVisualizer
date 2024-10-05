@@ -24,7 +24,6 @@ fields_to_extract = {
     #'Study Protocol Parameters Name': None
 }
 
-
 for line in data:
     line = line.strip() 
     
@@ -32,8 +31,6 @@ for line in data:
         if line.startswith(field):
             fields_to_extract[field] = line.split('\t')[-1]
 
-# Step 4: Organize the extracted information into a pandas DataFrame
 df = pd.DataFrame([fields_to_extract])
 
-# Step 5: Output the DataFrame
 df.to_csv(f"{df['Study Identifier'].item()}_investigation_df.tsv", sep="\t")
