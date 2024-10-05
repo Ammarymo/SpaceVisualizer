@@ -1,10 +1,9 @@
-# Load necessary libraries
 require(shiny)
 require(shinydashboard)
 require(tidyverse)
-require(plotly)  # Added for plotly bar plot
-require(wordcloud2)  # For word clouds
-require(DT)  # For interactive tables
+require(plotly)  
+require(wordcloud2)  
+require(DT)  
 require(rsconnect)
 
 # Header
@@ -76,7 +75,7 @@ body <- dashboardBody(
               box(
                 title = "Select Column for Bar Plot", status = "warning", solidHeader = TRUE,
                 uiOutput("column_selector"),
-                plotlyOutput("bar_plot", height = "400px")  # Added bar plot output
+                plotlyOutput("bar_plot", height = "400px")  
               )
             )
     ),
@@ -87,16 +86,16 @@ body <- dashboardBody(
               tabPanel("Experiment 1 Comparison",
                        fluidRow(
                          box(
-                           title = "Experiment 1 Summary", status = "primary", solidHeader = TRUE, width = 12,  # Set width to 12 for full width
-                           DT::dataTableOutput("table_exp1")  # Interactive table for Experiment 1
+                           title = "Experiment 1 Summary", status = "primary", solidHeader = TRUE, width = 12,  
+                           DT::dataTableOutput("table_exp1")  
                          )
                        )
               ),
               tabPanel("Experiment 2 Comparison",
                        fluidRow(
                          box(
-                           title = "Experiment 2 Summary", status = "primary", solidHeader = TRUE, width = 12,  # Set width to 12 for full width
-                           DT::dataTableOutput("table_exp2")  # Interactive table for Experiment 2
+                           title = "Experiment 2 Summary", status = "primary", solidHeader = TRUE, width = 12,
+                           DT::dataTableOutput("table_exp2")  
                          )
                        )
               )
@@ -113,34 +112,33 @@ ui <- dashboardPage(skin="black",
 )
 
 server <- function(input, output) {
-  # Reactive functions to read uploaded files for Experiment 1 and 2
   exp1_meta <- reactive({
-    req(input$exp1_meta_exp)  # Ensure file is uploaded
+    req(input$exp1_meta_exp)  
     read_tsv(input$exp1_meta_exp$datapath, col_names = TRUE) %>%
       rename_with(~ make.names(.))
   })
   
   exp1_inv <- reactive({
-    req(input$exp1_cleaned_invest)  # Ensure file is uploaded
+    req(input$exp1_cleaned_invest)  
     read_tsv(input$exp1_cleaned_invest$datapath, col_names = TRUE) %>%
       rename_with(~ make.names(.))
   })
   
   exp2_meta <- reactive({
-    req(input$exp2_meta_exp)  # Ensure file is uploaded
+    req(input$exp2_meta_exp)  
     read_tsv(input$exp2_meta_exp$datapath, col_names = TRUE) %>%
       rename_with(~ make.names(.))
   })
   
   exp2_inv <- reactive({
-    req(input$exp2_cleaned_invest)  # Ensure file is uploaded
+    req(input$exp2_cleaned_invest)  
     read_tsv(input$exp2_cleaned_invest$datapath, col_names = TRUE) %>%
       rename_with(~ make.names(.))
   })
   
-  # Display summary of uploaded files
+
   output$output_data <- renderPrint({
-    # Experiment 1 files summary
+    
     if (is.null(input$exp1_cleaned_invest) || is.null(input$exp1_meta_exp)) {
       cat("Please upload both files for Experiment 1.\n")
     } else {
@@ -149,7 +147,6 @@ server <- function(input, output) {
       cat("Meta Exp File:", input$exp1_meta_exp$name, "\n")
     }
     
-    # Experiment 2 files summary
     if (is.null(input$exp2_cleaned_invest) || is.null(input$exp2_meta_exp)) {
       cat("\nPlease upload both files for Experiment 2.\n")
     } else {
@@ -159,12 +156,11 @@ server <- function(input, output) {
     }
   })
   
-  # Display summary output based on selected experiment
   output$summary_output <- renderPrint({
-    req(input$experiment_select)  # Ensure an experiment is selected
+    req(input$experiment_select)  
     
     if (input$experiment_select == "exp1") {
-      req(exp1_inv())  # Ensure files are uploaded and data is available
+      req(exp1_inv())  
       if (!is.null(exp1_inv())) {
         cat("Summary for Experiment 1:\n")
         cat("Study Identifier: ", exp1_inv()$`Study.Identifier`, "\n")
@@ -174,7 +170,7 @@ server <- function(input, output) {
         cat("No data available for Experiment 1.")
       }
     } else if (input$experiment_select == "exp2") {
-      req(exp2_inv())  # Ensure files are uploaded and data is available
+      req(exp2_inv())  
       if (!is.null(exp2_inv())) {
         cat("Summary for Experiment 2:\n")
         cat("Study Identifier: ", exp2_inv()$`Study.Identifier`, "\n")
@@ -188,12 +184,12 @@ server <- function(input, output) {
     }
   })
   
-  # Generate word cloud based on selected experiment
+  
   output$wordcloud_output <- renderWordcloud2({
-    req(input$experiment_select)  # Ensure an experiment is selected
+    req(input$experiment_select)  
     
     if (input$experiment_select == "exp1") {
-      req(exp1_inv())  # Ensure data is available
+      req(exp1_inv())  
       if ("Study.Description" %in% colnames(exp1_inv())) {
         text <- paste(exp1_inv()$`Study.Description`, collapse = " ")
         words <- unlist(strsplit(text, "\\W+"))
@@ -204,7 +200,7 @@ server <- function(input, output) {
         colnames(word_freq) <- c("word", "freq")
         
         if (nrow(word_freq) > 0) {
-          wordcloud2(word_freq, size = 0.5)  # Adjust word size
+          wordcloud2(word_freq, size = 0.5)  
         } else {
           return(NULL)
         }
@@ -212,7 +208,7 @@ server <- function(input, output) {
         return(NULL)
       }
     } else if (input$experiment_select == "exp2") {
-      req(exp2_inv())  # Ensure data is available
+      req(exp2_inv())
       if ("Study.Description" %in% colnames(exp2_inv())) {
         text <- paste(exp2_inv()$`Study.Description`, collapse = " ")
         words <- unlist(strsplit(text, "\\W+"))
@@ -223,7 +219,7 @@ server <- function(input, output) {
         colnames(word_freq) <- c("word", "freq")
         
         if (nrow(word_freq) > 0) {
-          wordcloud2(word_freq, size = 0.5)  # Adjust word size
+          wordcloud2(word_freq, size = 0.5)  
         } else {
           return(NULL)
         }
@@ -233,33 +229,30 @@ server <- function(input, output) {
     }
   })
   
-  # Dynamic UI for selecting columns for the bar plot
   output$column_selector <- renderUI({
-    req(input$experiment_select_bar)  # Ensure an experiment is selected
+    req(input$experiment_select_bar)  
     
     if (input$experiment_select_bar == "exp1") {
-      req(exp1_meta())  # Ensure data is available
+      req(exp1_meta())  
       selectInput("bar_column", "Choose Column for Bar Plot", choices = colnames(exp1_meta()), selected = colnames(exp1_meta())[1])
     } else if (input$experiment_select_bar == "exp2") {
-      req(exp2_meta())  # Ensure data is available
+      req(exp2_meta())  
       selectInput("bar_column", "Choose Column for Bar Plot", choices = colnames(exp2_meta()), selected = colnames(exp2_meta())[1])
     }
   })
   
-  # Render the bar plot
   output$bar_plot <- renderPlotly({
-    req(input$experiment_select_bar)  # Ensure an experiment is selected
-    req(input$bar_column)  # Ensure a column is selected
+    req(input$experiment_select_bar)  
+    req(input$bar_column)  
     
     if (input$experiment_select_bar == "exp1") {
-      req(exp1_meta())  # Ensure data is available
+      req(exp1_meta())  
       data <- exp1_meta()
     } else if (input$experiment_select_bar == "exp2") {
-      req(exp2_meta())  # Ensure data is available
+      req(exp2_meta())  
       data <- exp2_meta()
     }
     
-    # Create bar plot
     plot_data <- data %>%
       count(!!sym(input$bar_column)) %>%
       arrange(desc(n))
@@ -270,18 +263,17 @@ server <- function(input, output) {
              yaxis = list(title = "Count"))
   })
   
-  # Render interactive tables for Experiment 1
+  
   output$table_exp1 <- DT::renderDataTable({
-    req(exp1_meta())  # Ensure data is available
+    req(exp1_meta())  
     datatable(exp1_meta(), options = list(pageLength = 5), rownames = FALSE)
   })
   
-  # Render interactive tables for Experiment 2
+  
   output$table_exp2 <- DT::renderDataTable({
-    req(exp2_meta())  # Ensure data is available
+    req(exp2_meta())  
     datatable(exp2_meta(), options = list(pageLength = 5), rownames = FALSE)
   })
 }
 
-# Run the application 
 shinyApp(ui = ui, server = server)
